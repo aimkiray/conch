@@ -76,3 +76,23 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes marquee {
+  0%, 100% { transform: translateY(0%); }
+  50% { transform: translateY(10%); }
+}
+
+@keyframes color-change {
+  0%, 100% { color: #ffdd57; }
+    25% { color: #fd79a8; }
+    50% { color: #55efc4; }
+    75% { color: #fd79a8; }
+}
+
+@layer utilities {
+  .animate-marquee {
+    animation: color-change 3s linear infinite;
+    font-weight: bold;
+    font-style: italic;
+  }
+}
