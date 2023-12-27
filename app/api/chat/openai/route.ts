@@ -1,20 +1,24 @@
 import { kv } from '@vercel/kv'
 import { OpenAIStream, StreamingTextResponse } from 'ai'
 import OpenAI from 'openai'
-
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
 
 export const runtime = 'edge'
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: process.env.OPENAI_API_URL,
 })
 
 export async function POST(req: Request) {
   const json = await req.json()
-  const { messages, previewToken } = json
+  let { messages, previewToken } = json
   const userId = (await auth())?.user.id
+
+  if (messages.length > 3) {
+    messages = messages.slice(-3)
+  }
 
   if (!userId) {
     return new Response('Unauthorized', {
@@ -27,7 +31,7 @@ export async function POST(req: Request) {
   }
 
   const res = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4-1106-preview',
     messages,
     temperature: 0.7,
     stream: true
