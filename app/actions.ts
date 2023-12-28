@@ -33,7 +33,7 @@ export async function getChats(userId?: string | null) {
 export async function getChat(id: string, userId: string) {
   const chat = await kv.hgetall<Chat>(`chat:${id}`)
 
-  if (!chat || (userId && chat.userId !== userId)) {
+  if (!chat || (userId && String(chat.userId) !== String(userId))) {
     return null
   }
 
@@ -45,15 +45,15 @@ export async function removeChat({ id, path }: { id: string; path: string }) {
 
   if (!session) {
     return {
-      error: 'Unauthorized'
+      error: 'Please login'
     }
   }
 
   const uid = await kv.hget<string>(`chat:${id}`, 'userId')
 
-  if (uid !== session?.user?.id) {
+  if (String(uid) !== String(session?.user?.id)) {
     return {
-      error: 'Unauthorized'
+      error: 'Current user does not own this chat'
     }
   }
 
@@ -111,7 +111,7 @@ export async function shareChat(id: string) {
 
   const chat = await kv.hgetall<Chat>(`chat:${id}`)
 
-  if (!chat || chat.userId !== session.user.id) {
+  if (!chat || String(chat.userId) !== String(session.user.id)) {
     return {
       error: 'Something went wrong'
     }
